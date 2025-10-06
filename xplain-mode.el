@@ -12,8 +12,15 @@
 ;;
 ;; Syntax hightlighting makes creating Xplain databases even more pleasant.
 ;;
-;; Add this to your .emacs file to load and bind it to files with extension
-;; .ddl:
+;; If you use use-package, add this to your Emcas init file:
+;;
+;; (use-package xplain-mode
+;;   :straight nil
+;;   :load-path "~/src/emacs/Xplain"
+;;   :mode "\\.ddl$")
+;;
+;; Or else simply:
+;;
 ;;(add-to-list 'auto-mode-alist '("\\.ddl\\'" . xplain-mode))
 ;;(autoload 'xplain-mode "xplain-mode" "Major mode for Xplain programs" t)
 
