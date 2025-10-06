@@ -1,5 +1,4 @@
-;;; xplain-mode.el --- Mode for editing Xplain data definition and
-;;; data manipulation files
+;;; xplain-mode.el --- Mode for editing Xplain data definition and data manipulation files  -*- lexical-binding: t; -*-
 ;;
 ;; $Revision: #1 $
 ;;
@@ -33,11 +32,13 @@
   "Major mode for editing Xplain source in Emacs"
   :group 'languages)
 
-;;
-(defvar xplain-load-hook nil
-  "*Hook run when the xplain-mode is loaded.")
+(defvar xplain-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?# "<" st)  ; # starts a comment
+    (modify-syntax-entry ?\n ">" st) ; newline ends a comment
+    st)
+  "Syntax table for `xplain-mode'.")
 
-;;
 (defvar xplain-font-lock-keywords
   (let ((xplain-keywords (eval-when-compile
 			 (concat "\\b"
@@ -58,46 +59,27 @@
 	(xplain-types "\(\\(A\\|B\\|D\\|I\\|M\\|P\\|R\\|T\\|V\\)[0-9,]*\)"))
     (setq xplain-font-lock-keywords
 	  (list
-     (cons "#.*$" 'font-lock-comment-face)
-     (cons "\(.include \\|.use \)" font-lock-reference-face)
-     (cons "\`[^\']+\'" font-lock-doc-face)
+     (cons "\\.\\(include\\|use\\)\\b" 'font-lock-preprocessor-face)
+     (cons "`[^']+'?" 'font-lock-doc-face)
      ;; multiline strings are very, very slow, so they're not fontified
      (cons "\"\\([^\"]*\\|\"\"\\)*\\(\"\\|$\\)" 'font-lock-string-face)
-     (cons "\{[^\}]*\}" 'font-lock-function-name-face)
+     (cons "{[^}]*}" 'font-lock-function-name-face)
      (cons xplain-keywords 'font-lock-keyword-face)
      (cons xplain-extra-keywords 'font-lock-keyword-face)
      (cons xplain-types 'font-lock-type-face)
      (cons "\\(true\\|false\\)" 'font-lock-constant-face)
      )))
-  "Info for function `font-lock-mode'."
-)
+  "Font lock keywords for `xplain-mode'.")
 
 ;;;###autoload
-(defun xplain-mode ()
+(define-derived-mode xplain-mode prog-mode "Xplain"
   "Major mode for editing Xplain data definition/manipulation files."
-  (interactive)
-  ;;
-  (kill-all-local-variables)
-  (setq mode-name "Xplain")
-  (setq major-mode 'xplain-mode)
-  ;;
-  (setq comment-start "#")
-  (setq comment-start-skip "#+ *")
-  ;;
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '(xplain-font-lock-keywords))
-  (make-local-variable 'font-lock-keywords-case-fold-search)
-  (setq font-lock-keywords-case-fold-search t)
-  (make-local-variable 'font-lock-beginning-of-syntax-function)
-  (setq font-lock-beginning-of-syntax-function 'beginning-of-line)
-  ;; why do I have this??
-  (make-local-variable 'font-lock-keywords-only)
-  (setq font-lock-keywords-only t)
-  ;;
-  (run-hooks 'xplain-mode-hook)
-  )
+  :syntax-table xplain-mode-syntax-table
+  (setq-local comment-start "#")
+  (setq-local comment-start-skip "#+\\s-*")
+  (setq-local font-lock-defaults
+              '(xplain-font-lock-keywords nil t)))
 
 (provide 'xplain-mode)
-(run-hooks 'xplain-load-hook)
 
 ;;; xplain-mode.el ends here
